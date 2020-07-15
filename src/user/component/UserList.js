@@ -1,7 +1,7 @@
 import React from 'react';
 import UserItem from './UserItem';
 import './UserList.css';
-import Card from '../../shared/component/UIELEMENT/Card';
+import Card from '../../shared/component/UIELEMENT/Card/Card';
 
 function UserList(props) {
   if (props.items.length === 0) {
