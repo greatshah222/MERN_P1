@@ -1,12 +1,6 @@
 import { validate } from '../Validation/Validator';
 
-export const initialState = {
-  value: '',
-  isValid: false,
-  isTouched: false,
-};
-
-export const inputReducer = (state = initialState, action) => {
+export const inputReducer = (state, action) => {
   switch (action.type) {
     case 'CHANGE':
       return {

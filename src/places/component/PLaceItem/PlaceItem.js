@@ -14,13 +14,28 @@ function PlaceItem(props) {
     address,
     description,
     coordinates,
+    id,
   } = props.placeItem;
+  // MAP MODAL
   const [showMap, setShowMap] = useState(false);
-
+  // DELETE COMFIRM MODAL
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  // MAP MODAL
   const mapOpenHandler = () => {
     setShowMap((prevstate) => !prevstate);
   };
-  console.log(coordinates);
+  // DELETE CONFIRM HANDLER close modal
+  const showConfirmModalHandler = () => {
+    setShowConfirmModal((prevState) => !prevState);
+  };
+  // DELETE CONFIRM HANDLER CONFIRM DELETE ACTION
+
+  const confirmDeleteHandler = () => {
+    setTimeout(() => {
+      console.log('deleting on progress');
+      setShowConfirmModal((prevState) => !prevState);
+    }, 3000);
+  };
 
   return (
     <>
@@ -44,6 +59,28 @@ function PlaceItem(props) {
           </h2>
         </div>
       </Modal>
+      <Modal
+        show={showConfirmModal}
+        // on Calcel meanss when user press the backdrop
+        onCancel={showConfirmModalHandler}
+        header='ARE YOU SURE ?'
+        footerClass='place-item__modal-actions'
+        footer={
+          <>
+            <Button onClick={showConfirmModalHandler} inverse>
+              CANCEL
+            </Button>
+            <Button onClick={confirmDeleteHandler} danger>
+              DELETE
+            </Button>
+          </>
+        }
+      >
+        <p style={{ fontSize: '18px', fontWeight: 'bold' }}>
+          Do You want to proceed and delete this place ? Please note that it can
+          not be undone!!!
+        </p>
+      </Modal>
       <li className='place-item'>
         <Card className='place-item__content'>
           {' '}
@@ -59,8 +96,10 @@ function PlaceItem(props) {
             <Button inverse onClick={mapOpenHandler}>
               View On map
             </Button>
-            <Button to={`/places/${props.id}`}>Edit</Button>
-            <Button danger>Delete</Button>
+            <Button to={`/places/${id}`}>Edit</Button>
+            <Button danger onClick={showConfirmModalHandler}>
+              Delete
+            </Button>
           </div>
         </Card>
       </li>

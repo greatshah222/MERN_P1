@@ -1,8 +1,15 @@
 import React, { useReducer, useEffect } from 'react';
 import './Input.css';
-import { inputReducer, initialState } from './InputReducer';
+import { inputReducer } from './InputReducer';
 
 function Input(props) {
+  // we are putting props.value or valid for the update page
+  const initialState = {
+    value: props.initialValue || '',
+    isValid: props.initialValid || false,
+    isTouched: false,
+  };
+
   const [state, dispatch] = useReducer(inputReducer, initialState);
   const { value, isTouched, isValid } = state;
   const { onInput, id } = props;

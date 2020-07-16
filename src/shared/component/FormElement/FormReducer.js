@@ -1,17 +1,3 @@
-export const InitialStateNewPlace = {
-  inputs: {
-    Title: {
-      value: '',
-      isValid: false,
-    },
-    Description: {
-      value: '',
-      isValid: false,
-    },
-  },
-  isValid: false,
-};
-
 export const formReducer = (state, action) => {
   switch (action.type) {
     case 'INPUT_CHANGE':
@@ -29,6 +15,11 @@ export const formReducer = (state, action) => {
       return {
         ...state,
         isValid: totalFormValid,
+      };
+    case 'FETCH_DATA_SUCCESS':
+      return {
+        inputs: action.inputs,
+        isValid: action.formIsValid,
       };
     default:
       return state;

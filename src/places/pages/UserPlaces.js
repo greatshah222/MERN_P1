@@ -1,7 +1,7 @@
 import React from 'react';
 import PlaceList from '../component/PlaceList/PlaceList';
 import { useParams } from 'react-router-dom';
-const DUMMY_PLACES = [
+export const DUMMY_PLACES = [
   {
     id: 'p1',
     title: 'shahh big building',
@@ -14,7 +14,7 @@ const DUMMY_PLACES = [
   },
   {
     id: 'p2',
-    title: 'shahh big building',
+    title: 'shahh big new',
     description: 'lorem is the building block for html content ',
     imageUrl:
       'https://images.pexels.com/photos/302769/pexels-photo-302769.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
