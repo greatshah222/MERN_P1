@@ -1,11 +1,12 @@
 export const formReducer = (state, action) => {
-  switch (action.type) {
+  const { type, id, value, isValid, inputs } = action;
+  switch (type) {
     case 'INPUT_CHANGE':
       return {
         ...state,
         inputs: {
           ...state.inputs,
-          [action.id]: { value: action.value, isValid: action.isValid },
+          [id]: { value, isValid },
         },
       };
     case 'CHECK_FORM_VALIDITY':
@@ -18,8 +19,8 @@ export const formReducer = (state, action) => {
       };
     case 'FETCH_DATA_SUCCESS':
       return {
-        inputs: action.inputs,
-        isValid: action.formIsValid,
+        inputs,
+        isValid,
       };
     default:
       return state;

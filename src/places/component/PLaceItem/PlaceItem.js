@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Card from '../../../shared/component/UIELEMENT/Card/Card';
 
 import Button from '../../../shared/component/FormElement/Button';
@@ -6,16 +6,22 @@ import './PlaceItem.css';
 import Backdrop from '../../../shared/component/UIELEMENT/BackDrop/Backdrop';
 import Modal from '../../../shared/component/UIELEMENT/Modal/Modal';
 import Map from '../../../shared/component/UIELEMENT/Map/Map';
+import { AuthContext } from '../../../shared/Context/AuthContext';
 
 function PlaceItem(props) {
   const {
-    imageUrl,
+    image,
     title,
     address,
     description,
-    coordinates,
-    id,
+    location,
+    _id,
+    creator,
   } = props.placeItem;
+
+  // use context
+  const { isLoggedIn } = useContext(AuthContext);
+
   // MAP MODAL
   const [showMap, setShowMap] = useState(false);
   // DELETE COMFIRM MODAL
@@ -55,7 +61,7 @@ function PlaceItem(props) {
       >
         <div className='map-container'>
           <h2>
-            <Map center={coordinates} zoom={6} />
+            <Map center={location} zoom={6} />
           </h2>
         </div>
       </Modal>
@@ -85,7 +91,7 @@ function PlaceItem(props) {
         <Card className='place-item__content'>
           {' '}
           <div className='place-item__image'>
-            <img src={imageUrl} alt={title} />
+            <img src={image} alt={title} />
           </div>
           <div className='place-item__info'>
             <h2>{title}</h2>
@@ -96,10 +102,14 @@ function PlaceItem(props) {
             <Button inverse onClick={mapOpenHandler}>
               View On map
             </Button>
-            <Button to={`/places/${id}`}>Edit</Button>
-            <Button danger onClick={showConfirmModalHandler}>
-              Delete
-            </Button>
+            {isLoggedIn && (
+              <>
+                <Button to={`/places/${_id}`}>Edit</Button>
+                <Button danger onClick={showConfirmModalHandler}>
+                  Delete
+                </Button>
+              </>
+            )}
           </div>
         </Card>
       </li>
