@@ -1,41 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import UserList from '../component/UserList';
 
-import axios from 'axios';
 import LoadingSpinner from '../../shared/component/UIELEMENT/Spinner/LoadingSpinner';
 import ErrorModal from '../../shared/component/UIELEMENT/ErrorModal/ErrorModal';
+import { useHttpHook } from '../../shared/Hooks/Http-hook';
 
 function Users() {
   const [users, SetUsers] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { isLoading, error, fetchData, clearError } = useHttpHook();
+
   useEffect(() => {
     const fetchUser = async () => {
-      setIsLoading(true);
       try {
-        const res = await axios({
-          method: 'GET',
-          url: 'http://localhost:5000/api/v1/users',
-        });
-        await SetUsers(res.data.data);
-        setIsLoading(false);
-        console.log(res.data.data);
+        const res = await fetchData(
+          'http://localhost:5000/api/v1/users',
+          'GET'
+        );
+        SetUsers(res.data);
+        console.log(res.data);
       } catch (error) {
         console.log(error.response.data.message);
-        setIsLoading(false);
-        setError(error.response.data.message);
       }
     };
     fetchUser();
-  }, []);
-  const errorModalClearHandler = () => {
-    setError(null);
-  };
+  }, [fetchData]);
+
   return (
     <>
       <div className='center'>{isLoading && <LoadingSpinner asOverlay />}</div>
 
-      {error && <ErrorModal error={error} onClear={errorModalClearHandler} />}
+      {error && <ErrorModal error={error} onClear={clearError} />}
       {!isLoading && users && <UserList items={users} />}
     </>
   );

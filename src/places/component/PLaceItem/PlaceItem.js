@@ -3,10 +3,13 @@ import Card from '../../../shared/component/UIELEMENT/Card/Card';
 
 import Button from '../../../shared/component/FormElement/Button';
 import './PlaceItem.css';
-import Backdrop from '../../../shared/component/UIELEMENT/BackDrop/Backdrop';
+
 import Modal from '../../../shared/component/UIELEMENT/Modal/Modal';
 import Map from '../../../shared/component/UIELEMENT/Map/Map';
 import { AuthContext } from '../../../shared/Context/AuthContext';
+import { useHttpHook } from '../../../shared/Hooks/Http-hook';
+import ErrorModal from '../../../shared/component/UIELEMENT/ErrorModal/ErrorModal';
+import LoadingSpinner from '../../../shared/component/UIELEMENT/Spinner/LoadingSpinner';
 
 function PlaceItem(props) {
   const {
@@ -20,8 +23,10 @@ function PlaceItem(props) {
   } = props.placeItem;
 
   // use context
-  const { isLoggedIn } = useContext(AuthContext);
+  const { userID } = useContext(AuthContext);
 
+  //custom hook
+  const { isLoading, error, fetchData, clearError } = useHttpHook();
   // MAP MODAL
   const [showMap, setShowMap] = useState(false);
   // DELETE COMFIRM MODAL
@@ -30,21 +35,31 @@ function PlaceItem(props) {
   const mapOpenHandler = () => {
     setShowMap((prevstate) => !prevstate);
   };
-  // DELETE CONFIRM HANDLER close modal
+  // close modal
   const showConfirmModalHandler = () => {
     setShowConfirmModal((prevState) => !prevState);
   };
   // DELETE CONFIRM HANDLER CONFIRM DELETE ACTION
-
-  const confirmDeleteHandler = () => {
-    setTimeout(() => {
-      console.log('deleting on progress');
-      setShowConfirmModal((prevState) => !prevState);
-    }, 3000);
+  //
+  const confirmDeleteHandler = async () => {
+    showConfirmModalHandler();
+    // we want to stay in the same page and also not send http request again to fetch data. if we simply delete the place it will be deleted from the db but the component will not re-render. so we handle the delete action in users page and filter out the place which was just deleted
+    try {
+      await fetchData(
+        `http://localhost:5000/api/v1/places/${_id}`,
+        'DELETE',
+        null,
+        {
+          'Content-Type': 'application/json',
+        }
+      );
+      props.onDelete(_id);
+    } catch (error) {}
   };
 
   return (
     <>
+      {error && <ErrorModal error={error} onClear={clearError} />}
       {/* // in modal this will be visible when show is true onCancel will close the
       modal when we click the Backdrop. header is defined in the modal just for
       giving titles and everything u can check it therr. contentClass means if
@@ -89,7 +104,7 @@ function PlaceItem(props) {
       </Modal>
       <li className='place-item'>
         <Card className='place-item__content'>
-          {' '}
+          {isLoading && <LoadingSpinner asOverlay />}{' '}
           <div className='place-item__image'>
             <img src={image} alt={title} />
           </div>
@@ -102,7 +117,7 @@ function PlaceItem(props) {
             <Button inverse onClick={mapOpenHandler}>
               View On map
             </Button>
-            {isLoggedIn && (
+            {userID === creator && (
               <>
                 <Button to={`/places/${_id}`}>Edit</Button>
                 <Button danger onClick={showConfirmModalHandler}>

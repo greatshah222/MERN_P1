@@ -1,35 +1,51 @@
 import React, { useEffect } from 'react';
 import PlaceList from '../component/PlaceList/PlaceList';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import { useState } from 'react';
+
+import { useHttpHook } from '../../shared/Hooks/Http-hook';
 import LoadingSpinner from '../../shared/component/UIELEMENT/Spinner/LoadingSpinner';
+import Card from '../../shared/component/UIELEMENT/Card/Card';
+import ErrorModal from '../../shared/component/UIELEMENT/ErrorModal/ErrorModal';
 
 function UserPlaces() {
-  // useParams is to get all the data from the params. it is react hook.
-  // <Route path='/:userId/places' component={UserPlaces}></Route>. in the app we have deifned the params as userId so we can get the params in the same way
   const userId = useParams().userId;
   const [place, setPlace] = useState([]);
+  const { isLoading, error, fetchData, clearError } = useHttpHook();
 
   useEffect(() => {
     const fetchPlace = async () => {
       try {
-        const res = await axios({
-          method: 'GET',
-          url: `http://localhost:5000/api/v1/places/user/${userId}`,
-        });
-        console.log(res.data.place.places);
-        setPlace(res.data.place.places);
-      } catch (error) {}
+        const res = await fetchData(
+          `http://localhost:5000/api/v1/places/user/${userId}`,
+          'GET'
+        );
+
+        setPlace(res.place.places);
+      } catch (error) {
+        console.log(error);
+      }
     };
     fetchPlace();
-  }, []);
-
-  // const loadedPlaces = DUMMY_PLACES.filter((el) => el.creator === userId);
-  let content = <LoadingSpinner overlay />;
-  if (place) {
+  }, [fetchData, userId]);
+  const onPlacesDeleteHandler = (_id) => {
+    setPlace((prevState) => prevState.filter((el) => el._id !== _id));
+  };
+  let content;
+  console.log(error);
+  if (isLoading) {
+    content = (
+      <Card className='center'>
+        <LoadingSpinner overlay />
+      </Card>
+    );
   }
-  content = <PlaceList items={place} />;
+  if (place && !isLoading) {
+    content = <PlaceList items={place} onDelete={onPlacesDeleteHandler} />;
+  }
+  if (error) {
+    content = <ErrorModal error={error} onClear={clearError} />;
+  }
 
   return content;
 }

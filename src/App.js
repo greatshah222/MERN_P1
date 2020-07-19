@@ -11,13 +11,15 @@ import Signup from './user/pages/Signup';
 import { AuthContext } from './shared/Context/AuthContext';
 function App() {
   const [isLoggedIn, setisLoggedIn] = useState(false);
-  const login = useCallback(() => {
+  const [userID, setUserID] = useState(null);
+  const login = useCallback((uid) => {
+    setUserID(uid);
     setisLoggedIn(true);
   }, []);
   const logout = useCallback(() => {
     setisLoggedIn(false);
   }, []);
-
+  console.log(userID);
   let route;
   if (isLoggedIn) {
     route = (
@@ -59,7 +61,9 @@ function App() {
     );
   }
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login: login, logout: logout }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, login: login, logout: logout, userID: userID }}
+    >
       <>
         <MainNavigation />
         {/* // for giving margin we have added class called main   */}

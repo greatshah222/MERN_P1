@@ -1,5 +1,4 @@
-import React, { useContext, useState } from 'react';
-import axios from 'axios';
+import React, { useContext } from 'react';
 import { useForm } from '../../shared/Hooks/form-hook';
 import Card from '../../shared/component/UIELEMENT/Card/Card';
 import Input from '../../shared/component/FormElement/Input';
@@ -11,12 +10,12 @@ import {
   VALIDATOR_REQUIRE,
 } from '../../shared/component/Validation/Validator';
 import LoadingSpinner from '../../shared/component/UIELEMENT/Spinner/LoadingSpinner';
-import ErrorModal from '../../shared/component/UIELEMENT/ErrorModal/ErrorModal';
+
+import { useHttpHook } from '../../shared/Hooks/Http-hook';
 
 function Signup() {
   // we need to pass the initial inputs and initialFormValidity to useForm
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { isLoading, error, fetchData } = useHttpHook();
   const [state, InputHandler] = useForm(
     {
       EMAIL: {
@@ -44,41 +43,36 @@ function Signup() {
 
     try {
       const { EMAIL, PASSWORD, PASSWORDCONFIRM, NAME } = state.inputs;
-
-      const res = await axios({
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // withCredentials: true,
-        url: 'http://localhost:5000/api/v1/users/signup',
-        data: {
+      // custom hook
+      await fetchData(
+        'http://localhost:5000/api/v1/users/signup',
+        'POST',
+        {
           email: EMAIL.value,
           password: PASSWORD.value,
           name: NAME.value,
           passwordConfirm: PASSWORDCONFIRM.value,
         },
-      });
-      setIsLoading(false);
-      setError(null);
-      console.log(res.data);
+        {
+          'Content-Type': 'application/json',
+        }
+      );
+
       await login();
     } catch (error) {
-      console.log(error.response.data.message);
-      setIsLoading(false);
-      setError(
-        error.response.data.message || 'Something went wrong please try again'
-      );
+      console.log(error);
     }
   };
 
-  const errorModalClearHandler = () => {
-    setError(null);
-  };
   return (
     <Card className='authentication'>
       {isLoading && <LoadingSpinner asOverlay />}
-      {error && <ErrorModal error={error} onClear={errorModalClearHandler} />}
+      {/* {error && <ErrorModal error={error} onClear={clearError} />} */}
+      {error && (
+        <p className='center' style={{ color: 'red' }}>
+          {error}
+        </p>
+      )}
       <h2 className='header'>Login Page</h2>
       <hr />
       <form onSubmit={signupSubmitHandler}>

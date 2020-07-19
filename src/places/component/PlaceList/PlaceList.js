@@ -22,7 +22,7 @@ function PlaceList(props) {
   return (
     <ul className='place-list'>
       {props.items.map((el) => (
-        <PlaceItem key={el.id} placeItem={el} />
+        <PlaceItem key={el.id} placeItem={el} onDelete={props.onDelete} />
       ))}
     </ul>
   );

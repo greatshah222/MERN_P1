@@ -19,7 +19,7 @@ function Map(props) {
 
       zoom: zoom,
     });
-    const marker = new mapboxgl.Marker().setLngLat(center).addTo(map);
+    new mapboxgl.Marker().setLngLat(center).addTo(map);
   }, [zoom, center]);
 
   return (
