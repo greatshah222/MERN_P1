@@ -41,42 +41,46 @@ export const useHttpHook = () => {
   // useRef stores the data across the re-render cycle
   const activeHttpRequests = useRef([]);
 
-  const fetchData = useCallback(async (url, method, data, headers = {}) => {
-    setIsLoading(true);
-    // if the request is made we can abort with the help of ABORTCONTROLEER
-    const httpAbortController = new AbortController();
-    // storing abort controller in the ref so that it will not change if the component re-renders
-    activeHttpRequests.current.push(httpAbortController);
+  const fetchData = useCallback(
+    async (url, method, data = null, headers = {}) => {
+      setIsLoading(true);
+      // if the request is made we can abort with the help of ABORTCONTROLEER
+      const httpAbortController = new AbortController();
+      // storing abort controller in the ref so that it will not change if the component re-renders
+      activeHttpRequests.current.push(httpAbortController);
 
-    try {
-      const res = await axios({
-        method,
-        headers,
-        url,
-        data,
-        // pointing to our abort controller
-        signal: httpAbortController.signal,
-      });
+      try {
+        const res = await axios({
+          method,
+          headers,
+          url,
+          data,
+          // pointing to our abort controller
+          signal: httpAbortController.signal,
+          withCredentials: true,
+        });
 
-      // after we get the response we need to abort our controllern which os just completed
-      activeHttpRequests.current = activeHttpRequests.current.filter(
-        (el) => el !== httpAbortController
-      );
+        // after we get the response we need to abort our controllern which os just completed
+        activeHttpRequests.current = activeHttpRequests.current.filter(
+          (el) => el !== httpAbortController
+        );
 
-      setIsLoading(false);
-      setError(null);
+        setIsLoading(false);
+        setError(null);
 
-      return res.data;
-    } catch (error) {
-      console.log(error.response.data.message);
-      setIsLoading(false);
-      setError(
-        error.response.data.message || 'Something went wrong please try again'
-      );
-      // we have to throw the error so that it can be caught by other component
-      throw error;
-    }
-  }, []);
+        return res.data;
+      } catch (error) {
+        console.log(error.response.data.message);
+        setIsLoading(false);
+        setError(
+          error.response.data.message || 'Something went wrong please try again'
+        );
+        // we have to throw the error so that it can be caught by other component
+        throw error;
+      }
+    },
+    []
+  );
   const clearError = () => {
     setError(null);
   };

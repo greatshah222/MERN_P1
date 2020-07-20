@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import './App.css';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import Users from './user/pages/Users';
@@ -9,19 +9,55 @@ import UpdatePlace from './places/pages/UpdatePlace';
 import Login from './user/pages/Login';
 import Signup from './user/pages/Signup';
 import { AuthContext } from './shared/Context/AuthContext';
+import { useHttpHook } from './shared/Hooks/Http-hook';
+import ErrorModal from './shared/component/UIELEMENT/ErrorModal/ErrorModal';
+
 function App() {
-  const [isLoggedIn, setisLoggedIn] = useState(false);
+  const [token, setToken] = useState();
   const [userID, setUserID] = useState(null);
-  const login = useCallback((uid) => {
+  const [cookieFetch, setCookieFetch] = useState(false);
+  // fetching token
+  // have to do this state else logout will not be fast and it would have already rendered other component
+  const [logoutOperation, setLogoutoperation] = useState(false);
+  const { isLoading, error, fetchData, clearError } = useHttpHook();
+  const login = useCallback((uid, token) => {
     setUserID(uid);
-    setisLoggedIn(true);
+    setToken(token);
   }, []);
   const logout = useCallback(() => {
-    setisLoggedIn(false);
-  }, []);
-  console.log(userID);
+    let logoutUser;
+    setLogoutoperation(true);
+    try {
+      logoutUser = async () => {
+        await fetchData('http://localhost:5000/api/v1/users/logout', 'GET');
+        setToken(null);
+        setUserID(null);
+        await setLogoutoperation(false);
+      };
+    } catch (error) {
+      setLogoutoperation(false);
+    }
+    logoutUser();
+  }, [fetchData]);
+
+  useEffect(() => {
+    let fetchToken;
+    setCookieFetch(true);
+    try {
+      fetchToken = async () => {
+        const res = await fetchData(
+          'http://localhost:5000/api/v1/users/gettoken',
+          'GET'
+        );
+        if (res.data.token && res.data.currentUser._id) {
+          login(res.data.currentUser._id, res.data.token);
+        }
+      };
+    } catch (error) {}
+    fetchToken();
+  }, [fetchData, login]);
   let route;
-  if (isLoggedIn) {
+  if (cookieFetch && token && !isLoading && !logoutOperation) {
     route = (
       <Switch>
         <Route path='/places/new'>
@@ -41,7 +77,7 @@ function App() {
         <Redirect to='/' />
       </Switch>
     );
-  } else {
+  } else if (cookieFetch && !isLoading && !logoutOperation) {
     route = (
       <Switch>
         <Route path='/login'>
@@ -60,16 +96,27 @@ function App() {
       </Switch>
     );
   }
+  // !! converts objetc to boolean and then checks for value if there is value than it will be true
+
   return (
-    <AuthContext.Provider
-      value={{ isLoggedIn, login: login, logout: logout, userID: userID }}
-    >
-      <>
-        <MainNavigation />
-        {/* // for giving margin we have added class called main   */}
-        <main>{route}</main>
-      </>
-    </AuthContext.Provider>
+    cookieFetch && (
+      <AuthContext.Provider
+        value={{
+          isLoggedIn: !!token,
+          token,
+          login: login,
+          logout: logout,
+          userID: userID,
+        }}
+      >
+        <>
+          <MainNavigation />
+          {/* // for giving margin we have added class called main   */}
+          {error && <ErrorModal error={error} onClear={clearError} />}
+          <main>{route}</main>
+        </>
+      </AuthContext.Provider>
+    )
   );
 }
 

@@ -6,13 +6,15 @@ import Card from '../../shared/component/UIELEMENT/Card/Card';
 import './UserItem.css';
 
 function UserItem(props) {
-  console.log(props.user.places.length);
   return (
     <li className='user-item'>
       <Card className='user-item__content'>
         <Link to={`/${props.user._id}/places`}>
           <div className='user-item__image'>
-            <Avatar image={props.user.image} alt={props.user.name} />
+            <Avatar
+              image={`http://localhost:5000/uploads/images/${props.user.image}`}
+              alt={props.user.name}
+            />
           </div>
           <div className='user-item__info'>
             <h2>{props.user.name}</h2>

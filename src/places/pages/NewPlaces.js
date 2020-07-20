@@ -12,6 +12,7 @@ import { AuthContext } from '../../shared/Context/AuthContext';
 import LoadingSpinner from '../../shared/component/UIELEMENT/Spinner/LoadingSpinner';
 import ErrorModal from '../../shared/component/UIELEMENT/ErrorModal/ErrorModal';
 import { useHistory } from 'react-router-dom';
+import ImageUpload from '../../shared/ImageUpload/ImageUpload';
 
 function NewPlaces() {
   const { isLoading, error, fetchData, clearError } = useHttpHook();
@@ -35,7 +36,7 @@ function NewPlaces() {
         isValid: false,
       },
       Image: {
-        value: 'https://picsum.photos/200',
+        value: null,
         isValid: true,
       },
     },
@@ -50,20 +51,15 @@ function NewPlaces() {
     e.preventDefault();
 
     try {
-      const res = await fetchData(
-        'http://localhost:5000/api/v1/places',
-        'POST',
-        {
-          title: Title.value,
-          description: Description.value,
-          address: Address.value,
-          creator: userID,
-        },
-        {
-          'Content-Type': 'application/json',
-        }
-      );
-      await console.log(res);
+      const formData = new FormData();
+      formData.append('title', Title.value);
+      formData.append('description', Description.value);
+      formData.append('address', Address.value);
+      formData.append('creator', userID);
+      formData.append('image', Image.value);
+      await fetchData('http://localhost:5000/api/v1/places', 'POST', formData, {
+        'Content-Type': 'multipart/form-data',
+      });
       history.push('/');
     } catch (error) {}
   };
@@ -99,6 +95,12 @@ function NewPlaces() {
           errorText='please enter a valid  '
           validators={[VALIDATOR_REQUIRE()]}
           onInput={InputHandler}
+        />
+        <ImageUpload
+          id='Image'
+          center
+          onInput={InputHandler}
+          errorText='Please attach an Image'
         />
         <Button type='submit' disabled={!state.isValid}>
           ADD PLACE

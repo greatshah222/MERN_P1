@@ -5,7 +5,6 @@ import './Map.css';
 function Map(props) {
   const { center, zoom } = props;
   const mapRef = useRef();
-  console.log(center);
 
   useEffect(() => {
     mapboxgl.accessToken = process.env.REACT_APP_MAP_TOKEN;

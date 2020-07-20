@@ -22,9 +22,7 @@ function UserPlaces() {
         );
 
         setPlace(res.place.places);
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) {}
     };
     fetchPlace();
   }, [fetchData, userId]);
@@ -32,7 +30,6 @@ function UserPlaces() {
     setPlace((prevState) => prevState.filter((el) => el._id !== _id));
   };
   let content;
-  console.log(error);
   if (isLoading) {
     content = (
       <Card className='center'>

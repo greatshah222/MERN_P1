@@ -45,7 +45,6 @@ function UpdatePlace() {
           'GET'
         );
         setLoadedPlace(res.place);
-        console.log(res.place);
 
         setFormData(
           {
@@ -64,8 +63,7 @@ function UpdatePlace() {
     };
     fetchPlace();
   }, [fetchData, placeId, setFormData]);
-  console.log(state);
-  console.log(error);
+
   if (isLoading) {
     return (
       <div className='center'>
@@ -89,7 +87,7 @@ function UpdatePlace() {
   const submitFormHandler = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetchData(
+      await fetchData(
         `http://localhost:5000/api/v1/places/${placeId}`,
         'PATCH',
         {
@@ -100,7 +98,6 @@ function UpdatePlace() {
           'Content-Type': 'application/json',
         }
       );
-      console.log(res);
       history.goBack();
     } catch (error) {}
   };

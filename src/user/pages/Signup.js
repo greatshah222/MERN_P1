@@ -12,6 +12,7 @@ import {
 import LoadingSpinner from '../../shared/component/UIELEMENT/Spinner/LoadingSpinner';
 
 import { useHttpHook } from '../../shared/Hooks/Http-hook';
+import ImageUpload from '../../shared/ImageUpload/ImageUpload';
 
 function Signup() {
   // we need to pass the initial inputs and initialFormValidity to useForm
@@ -34,6 +35,10 @@ function Signup() {
         value: '',
         isValid: false,
       },
+      IMAGE: {
+        value: null,
+        isValid: false,
+      },
     },
     false
   );
@@ -42,19 +47,21 @@ function Signup() {
     e.preventDefault();
 
     try {
-      const { EMAIL, PASSWORD, PASSWORDCONFIRM, NAME } = state.inputs;
+      const { EMAIL, PASSWORD, PASSWORDCONFIRM, NAME, IMAGE } = state.inputs;
+      const formData = new FormData();
+      formData.append('name', NAME.value);
+      formData.append('email', EMAIL.value);
+      formData.append('password', PASSWORD.value);
+      formData.append('passwordConfirm', PASSWORDCONFIRM.value);
+      formData.append('image', IMAGE.value);
+
       // custom hook
       await fetchData(
         'http://localhost:5000/api/v1/users/signup',
         'POST',
+        formData,
         {
-          email: EMAIL.value,
-          password: PASSWORD.value,
-          name: NAME.value,
-          passwordConfirm: PASSWORDCONFIRM.value,
-        },
-        {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
         }
       );
 
@@ -116,7 +123,16 @@ function Signup() {
           errorText='Password does not match '
           onInput={InputHandler}
         />
-
+        {/* // center is for adding class it is passed as props */}
+        {/* // we pass InputHandler as props on onInput cause ImageUpload
+        accepts(props.id, pickedFile, fileIsValid) so our InputHandler also
+        accepts(id, value, isValid) so they are same cause on Input component it does not matter what we choose a file or text */}
+        <ImageUpload
+          id='IMAGE'
+          center
+          onInput={InputHandler}
+          errorText='Please attach an Image'
+        />
         <Button type='submit' disabled={!state.isValid}>
           SIGNUP
         </Button>

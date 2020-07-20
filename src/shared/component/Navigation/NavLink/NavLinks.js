@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 import './NavLinks.css';
 import { AuthContext } from '../../../Context/AuthContext';
 function NavLinks(props) {
-  const { isLoggedIn, userID } = useContext(AuthContext);
+  const { isLoggedIn, userID, logout } = useContext(AuthContext);
 
   return (
     <ul className='nav-links'>
@@ -32,7 +32,7 @@ function NavLinks(props) {
 
       {isLoggedIn && (
         <li onClick={props.closeDrawer}>
-          <NavLink to='/logout'>Logout</NavLink>
+          <button onClick={logout}>Logout</button>
         </li>
       )}
     </ul>

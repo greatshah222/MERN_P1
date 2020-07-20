@@ -51,8 +51,8 @@ function Login() {
           'Content-Type': 'application/json',
         }
       );
-      console.log(res.data.user._id);
-      await login(res.data.user._id);
+
+      await login(res.data.user._id, res.data.token);
     } catch (error) {
       // we dont have to anything cause error is already handled this step is so that user doenot log in when there is an error
       console.log(error);
